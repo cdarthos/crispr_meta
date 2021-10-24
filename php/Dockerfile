@@ -1,6 +1,8 @@
 # Dockerfile
 FROM php:8.0-apache
+
 WORKDIR /app
+RUN chmod 777 /app
 
 # Parametre d apache
 COPY conf/vhost.conf /etc/apache2/sites-available/000-default.conf
