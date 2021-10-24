@@ -1,6 +1,6 @@
 <?php
 
-if (!file_exists('upload/')) {     mkdir('upload/', 0777, true); }
+if (!file_exists('upload')) {     mkdir('upload', 0777, true); }
 
 if(isset($_POST['submit'])){
 
