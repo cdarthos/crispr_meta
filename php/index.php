@@ -1,5 +1,7 @@
 <?php
 
+if (!file_exists('upload/')) {     mkdir('upload/', 0777, true); }
+
 if(isset($_POST['submit'])){
 
     $countfiles = count($_FILES['file']['name']);
