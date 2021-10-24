@@ -12,8 +12,8 @@ if(isset($_POST['submit'])){
         move_uploaded_file($_FILES['file']['tmp_name'][$i],'upload/'.$dir.'/'.$filename);
     }
 }
-
-echo "<form method='post' action='' enctype='multipart/form-data'><p>Votre nom : <input type='text' name='nom'></p><input type='file' name='file[]' id='file' multiple><input type='submit' name='submit' value='Upload'></form>";
+echo "<p>Cette premiere partie permet de deposer les articles (avec les \"supplementary file\") liés au CRISPR de la Tuberculose</p>";
+echo "<form method='post' action='' enctype='multipart/form-data'><p>code \"doi\" de l'article : <input type='text' name='nom'></p><input type='file' name='file[]' id='file' multiple><input type='submit' name='submit' value='Upload'></form>";
 
 echo 'Liste des données déjà importé :<br>';
 $array = array_diff(scandir('upload/'), array('..', '.'));
