@@ -6,9 +6,9 @@ if(isset($_POST['submit'])){
     $countfiles = count($_FILES['file']['name']);
 
     $dirtemp = $_POST['nom'];
-    echo "$dirtemp\n";
+    #echo "$dirtemp\n";
     preg_match_all('!\d+!', $dirtemp, $ok);
-    print_r($ok[0][0]);
+    #print_r($ok[0][0]);
     $dir = strval($ok[0][0]).'.'.strval($ok[0][1]).'_'.strval($ok[0][2]);
 
     echo $dir;
