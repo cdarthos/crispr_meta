@@ -11,7 +11,7 @@ if(isset($_POST['submit'])){
     #print_r($ok[0][0]);
     $dir = strval($ok[0][0]).'.'.strval($ok[0][1]).'_'.strval($ok[0][2]);
 
-    echo $dir;
+    #echo $dir;
     for($i=0;$i<$countfiles;$i++){
         $filename = $_FILES['file']['name'][$i];
         if (!file_exists('upload/'.$dir)) {    mkdir('upload/'.$dir, 0777, true); }
