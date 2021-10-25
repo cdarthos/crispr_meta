@@ -1,16 +1,18 @@
 <?php
 
-if (!file_exists('upload')) {     mkdir('upload', 0777, true); }
 
 if(isset($_POST['submit'])){
 
     $countfiles = count($_FILES['file']['name']);
 
-    $dir = $_POST['nom'];
-
+    $dirtemp = $_POST['nom'];
+    echo "$dirtemp\n";
+    $dirtemp = str_replace('/',"_",$dirtemp);
+    $dir = str_replace(':',"_",$dirtemp);
+    echo $dir;
     for($i=0;$i<$countfiles;$i++){
         $filename = $_FILES['file']['name'][$i];
-        if (!file_exists('upload/'.$dir)) {     mkdir('upload/'.$dir, 0777, true); }
+        if (!file_exists('upload/'.$dir)) {    mkdir('upload/'.$dir, 0777, true); }
         move_uploaded_file($_FILES['file']['tmp_name'][$i],'upload/'.$dir.'/'.$filename);
     }
 }
@@ -32,6 +34,5 @@ foreach($array as $item) {
 echo '</table>';
 
 
-?>
 
 
