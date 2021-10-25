@@ -7,8 +7,10 @@ if(isset($_POST['submit'])){
 
     $dirtemp = $_POST['nom'];
     echo "$dirtemp\n";
-    $dirtemp = str_replace('/',"_",$dirtemp);
-    $dir = str_replace(':',"_",$dirtemp);
+    preg_match_all('!\d+!', $dirtemp, $ok);
+    print_r($ok[0][0]);
+    $dir = strval($ok[0][0]).'.'.strval($ok[0][1]).'_'.strval($ok[0][2]);
+
     echo $dir;
     for($i=0;$i<$countfiles;$i++){
         $filename = $_FILES['file']['name'][$i];
