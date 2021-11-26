@@ -12,3 +12,13 @@ services:
     ports:
       - "80:80"
     restart: always
+  python:
+    container_name: python
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+    volumes:
+      - ./python/:/app/
+    ports:
+      - "5000:5000"
+    restart: always

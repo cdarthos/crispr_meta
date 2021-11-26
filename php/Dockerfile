@@ -1,4 +1,7 @@
 # Dockerfile
+# syntax=docker/dockerfile:1
+
+# Dockerfile
 FROM php:8.0-apache
 
 WORKDIR /app
