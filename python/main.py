@@ -171,7 +171,7 @@ def extract_in_csv(file):
 
         SRAlist = SRAfile.readline()
 
-        with open("test.csv", 'w', newline='', encoding='utf-8') as out:
+        with open("SRAlist/test.csv", 'w', newline='', encoding='utf-8') as out:
             resultat_dict = find_sra_element(SRAlist.strip())
             header = resultat_dict.keys()
             # header = ['Run_accession', 'datePubli', 'pubmed_id', 'pubmedLABEL', 'sraID', 'biosampleLABEL', 'country', 'list_extra', 'title', 'abstract']
