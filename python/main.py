@@ -8,7 +8,7 @@ import xmltodict, json
 
 app = flask.Flask(__name__)
 
-if(__name__ == '__main__'):
+if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
 
 
@@ -95,11 +95,11 @@ def file_sra_req(file):
             # print(out)
             SRAlist = SRAfile.readline()
 
-
+@app.route("/extract/<Run_accession>")
 def find_sra_element(Run_accession):
     fetch_sra_fullXML(Run_accession)
-    keys_list = ['Run_accession', 'datePubli', 'pubmed_id', 'pubmedLABEL', 'sraID', 'biosampleLABEL', 'country',
-                 'list_extra', 'title', 'abstract']
+    keys_list = ['Run_accession', 'datePubli', 'sraID', 'BioSample','collection_date', 'geo_loc_name',
+                 'lat_lon','list_extra','BioProject', 'title', 'abstract']
     resultat_dict = dict.fromkeys(keys_list)
     resultat_dict['Run_accession'] = Run_accession
     with open("complete_xml/" + Run_accession + ".xml", 'r', encoding="utf-8", errors='ignore') as xml:
@@ -118,28 +118,17 @@ def find_sra_element(Run_accession):
             n = n.get('accession')
             resultat_dict['sraID'] = n
             # print(".//SUBMISSION:accession",n)
-        for n in root.findall(".//Organization/Address/Country"):
-            resultat_dict['country'] = n.text
-            # print(".//Address/Country",n.text)
-        for n in root.findall(".//Organization/Address/City"):
-            resultat_dict['city'] = n.text
-            # print(".//Address/City",n.text)
-        # for n in root.findall(".//XREF_LINK/DB"):
 
-        # print(".//XREF_LINK/DB",n.text)
-        for n in root.findall(".//XREF_LINK/ID"):
-            resultat_dict['pubmed_id'] = n.text
-            # print(".//XREF_LINK/ID",n.text)
-        for n in root.findall(".//XREF_LINK/LABEL"):
-            resultat_dict['pubmedLABEL'] = n.text
-            # print(".//XREF_LINK/LABEL",n.text)
-        # for n in root.findall(".//STUDY/IDENTIFIERS/EXTERNAL_ID"):
-        # print(".//STUDY/IDENTIFIERS/EXTERNAL_ID",n.text)
         for n in root.findall(".//SCIENTIFIC_NAME"):
             resultat_dict['specie'] = n.text
             # print(".//SAMPLE/SAMPLE_NAME/SCIENTIFIC_NAME",n.text)
-        for n in root.findall(".//SAMPLE/IDENTIFIERS/EXTERNAL_ID[@namespace='BioSample']"):
-            resultat_dict['biosampleLABEL'] = n.text
+        for n in root.findall(".//IDENTIFIERS/EXTERNAL_ID[@namespace='BioSample']"):
+            if(n.text != ""):
+                resultat_dict['BioSample'] = n.text
+            # print("biosampleLABEL = ",n.text)
+        for n in root.findall(".//EXTERNAL_ID[@namespace='BioProject']"):
+            if (n.text != ""):
+                resultat_dict['BioProject'] = n.text
             # print("biosampleLABEL = ",n.text)
         list_extra = []
         for n in root.findall(".//SAMPLE_ATTRIBUTE"):
@@ -155,12 +144,24 @@ def find_sra_element(Run_accession):
                     # print(tag, o.text)
             list_extra.append(extra)
         resultat_dict['list_extra'] = list_extra
+        for extra in list_extra:
+            if([*extra] == ['geo_loc_name']):
+                #print([*extra.values()][0])
+                resultat_dict['geo_loc_name'] = [*extra.values()][0]
+            if([*extra] == ['lat_lon']):
+                #print([*extra.values()][0])
+                resultat_dict['lat_lon'] = [*extra.values()][0]
+            if([*extra] == ['collection_date']):
+                #print([*extra.values()][0])
+                resultat_dict['collection_date'] = [*extra.values()][0]
+
         for n in root.findall(".//RUN_SET/RUN"):
             resultat_dict['datePubli'] = n.get("published")
             # print(".//RUN_SET/RUN:published",datePubli)
         # for n in root.iter():
         # print(n.tag, n.attrib, n.text)
     return resultat_dict
+
 
 
 def extract_in_csv(file):
@@ -200,3 +201,7 @@ def extract_in_csv(file):
 def update():
     #extract_in_csv("SRAlistTEST.txt")
     file_sra_req("SRAlistTEST.txt")
+
+@app.route("/update_csv")
+def update_csv():
+    extract_in_csv("SRAlistTEST.txt")
