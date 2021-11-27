@@ -99,7 +99,7 @@ def file_sra_req(file):
 def find_sra_element(Run_accession):
     fetch_sra_fullXML(Run_accession)
     keys_list = ['Run_accession', 'datePubli', 'sraID', 'BioSample','collection_date', 'geo_loc_name',
-                 'lat_lon','list_extra','BioProject', 'title', 'abstract']
+                 'lat_lon','list_extra','BioProject', 'title', 'abstract','ext_link_db','ext_link_id','ext_link_label']
     resultat_dict = dict.fromkeys(keys_list)
     resultat_dict['Run_accession'] = Run_accession
     with open("complete_xml/" + Run_accession + ".xml", 'r', encoding="utf-8", errors='ignore') as xml:
@@ -107,29 +107,25 @@ def find_sra_element(Run_accession):
         root = tree.getroot()
         for n in root.findall(".//STUDY/DESCRIPTOR/STUDY_TITLE"):
             resultat_dict['title'] = n.text
-            # print(".//STUDY/DESCRIPTOR/STUDY_TITLE",n.text)
+
         for n in root.findall(".//STUDY/DESCRIPTOR/STUDY_ABSTRACT"):
             resultat_dict['abstract'] = n.text
-            # print(".//STUDY/DESCRIPTOR/STUDY_ABSTRACT",n.text)
-        # for n in root.findall(".//SUBMISSION"):
 
-        # print(".//SUBMISSION",n.items())
         for n in root.findall(".//SUBMISSION"):
             n = n.get('accession')
             resultat_dict['sraID'] = n
-            # print(".//SUBMISSION:accession",n)
 
         for n in root.findall(".//SCIENTIFIC_NAME"):
             resultat_dict['specie'] = n.text
-            # print(".//SAMPLE/SAMPLE_NAME/SCIENTIFIC_NAME",n.text)
+
         for n in root.findall(".//IDENTIFIERS/EXTERNAL_ID[@namespace='BioSample']"):
             if(n.text != ""):
                 resultat_dict['BioSample'] = n.text
-            # print("biosampleLABEL = ",n.text)
+
         for n in root.findall(".//EXTERNAL_ID[@namespace='BioProject']"):
             if (n.text != ""):
                 resultat_dict['BioProject'] = n.text
-            # print("biosampleLABEL = ",n.text)
+
         list_extra = []
         for n in root.findall(".//SAMPLE_ATTRIBUTE"):
             extra = {}
@@ -141,25 +137,27 @@ def find_sra_element(Run_accession):
                     continue
                 else:
                     extra[tag] = o.text
-                    # print(tag, o.text)
+
             list_extra.append(extra)
         resultat_dict['list_extra'] = list_extra
         for extra in list_extra:
             if([*extra] == ['geo_loc_name']):
-                #print([*extra.values()][0])
                 resultat_dict['geo_loc_name'] = [*extra.values()][0]
             if([*extra] == ['lat_lon']):
-                #print([*extra.values()][0])
                 resultat_dict['lat_lon'] = [*extra.values()][0]
             if([*extra] == ['collection_date']):
-                #print([*extra.values()][0])
                 resultat_dict['collection_date'] = [*extra.values()][0]
 
         for n in root.findall(".//RUN_SET/RUN"):
             resultat_dict['datePubli'] = n.get("published")
-            # print(".//RUN_SET/RUN:published",datePubli)
-        # for n in root.iter():
-        # print(n.tag, n.attrib, n.text)
+
+        for n in root.findall(".//XREF_LINK/DB"):
+            resultat_dict['ext_link_db'] = n.text
+        for n in root.findall(".//XREF_LINK/ID"):
+            resultat_dict['ext_link_id'] = n.text
+        for n in root.findall(".//XREF_LINK/LABEL"):
+            resultat_dict['ext_link_label'] = n.text
+
     return resultat_dict
 
 
@@ -187,7 +185,7 @@ def extract_in_csv(file):
                 i += 1
 
                 resultat_dict = find_sra_element(SRAlist.strip())
-                print(resultat_dict)
+                #print(resultat_dict)
                 writer.writerow(resultat_dict)
 
                 # line = [Run_accession, datePubli, pubmed_id, pubmedLABEL, sraID, biosampleLABEL, country, list_extra, title, abstract]
