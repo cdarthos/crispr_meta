@@ -203,3 +203,4 @@ def update():
 @app.route("/update_csv")
 def update_csv():
     extract_in_csv("SRAlistTEST.txt")
+    return("OK")
