@@ -8,9 +8,9 @@ import xmltodict, json
 
 app = flask.Flask(__name__)
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0",debug=True)
 
 @app.route("/")
 def hello_world():
@@ -22,8 +22,26 @@ def json_sra(Run_accession):
     fetch_sra_fullXML(Run_accession)
     with open("complete_xml/" + Run_accession + ".xml", 'r') as xml:
         o = xmltodict.parse(xml.read())
-        #return o.get("BioSample")
+        # return o.get("BioSample")
         return o
+
+
+@app.route("/update")
+def update():
+    # extract_in_csv("SRAlistTEST.txt")
+    file_sra_req("SRAlistTEST.txt")
+
+
+@app.route("/update_csv")
+def update_csv():
+    extract_in_csv("SRAlistTEST.txt")
+    return ("OK")
+
+
+@app.route("/extract/<Run_accession>")
+def find_sra_element_f(Run_accession):
+    out = find_sra_element(Run_accession)
+    return out
 
 
 def fetch_sra_fullXML(id):
@@ -95,11 +113,12 @@ def file_sra_req(file):
             # print(out)
             SRAlist = SRAfile.readline()
 
-@app.route("/extract/<Run_accession>")
+
 def find_sra_element(Run_accession):
     fetch_sra_fullXML(Run_accession)
-    keys_list = ['Run_accession', 'datePubli', 'sraID', 'BioSample','collection_date', 'geo_loc_name',
-                 'lat_lon','list_extra','BioProject', 'title', 'abstract','ext_link_db','ext_link_id','ext_link_label']
+    keys_list = ['Run_accession', 'datePubli', 'sraID', 'BioSample', 'collection_date', 'geo_loc_name',
+                 'lat_lon', 'list_extra', 'BioProject', 'title', 'abstract', 'ext_link_db', 'ext_link_id',
+                 'ext_link_label','strain','isolate']
     resultat_dict = dict.fromkeys(keys_list)
     resultat_dict['Run_accession'] = Run_accession
     with open("complete_xml/" + Run_accession + ".xml", 'r', encoding="utf-8", errors='ignore') as xml:
@@ -119,7 +138,7 @@ def find_sra_element(Run_accession):
             resultat_dict['specie'] = n.text
 
         for n in root.findall(".//IDENTIFIERS/EXTERNAL_ID[@namespace='BioSample']"):
-            if(n.text != ""):
+            if (n.text != ""):
                 resultat_dict['BioSample'] = n.text
 
         for n in root.findall(".//EXTERNAL_ID[@namespace='BioProject']"):
@@ -141,16 +160,24 @@ def find_sra_element(Run_accession):
             list_extra.append(extra)
         resultat_dict['list_extra'] = list_extra
         for extra in list_extra:
-            if([*extra] == ['geo_loc_name']):
+            if ([*extra] == ['geo_loc_name']):
                 resultat_dict['geo_loc_name'] = [*extra.values()][0]
-            if([*extra] == ['lat_lon']):
+            if ([*extra] == ['lat_lon']):
                 resultat_dict['lat_lon'] = [*extra.values()][0]
-            if([*extra] == ['collection_date']):
+            if ([*extra] == ['collection_date']):
                 resultat_dict['collection_date'] = [*extra.values()][0]
+            if ([*extra] == ['strain']):
+                resultat_dict['strain'] = [*extra.values()][0]
+            if ([*extra] == ['isolate']):
+                resultat_dict['isolate'] = [*extra.values()][0]
+
+
 
         for n in root.findall(".//RUN_SET/RUN"):
             resultat_dict['datePubli'] = n.get("published")
 
+
+        # finalement peu utile
         for n in root.findall(".//XREF_LINK/DB"):
             resultat_dict['ext_link_db'] = n.text
         for n in root.findall(".//XREF_LINK/ID"):
@@ -159,7 +186,6 @@ def find_sra_element(Run_accession):
             resultat_dict['ext_link_label'] = n.text
 
     return resultat_dict
-
 
 
 def extract_in_csv(file):
@@ -185,7 +211,7 @@ def extract_in_csv(file):
                 i += 1
 
                 resultat_dict = find_sra_element(SRAlist.strip())
-                #print(resultat_dict)
+                # print(resultat_dict)
                 writer.writerow(resultat_dict)
 
                 # line = [Run_accession, datePubli, pubmed_id, pubmedLABEL, sraID, biosampleLABEL, country, list_extra, title, abstract]
@@ -194,13 +220,3 @@ def extract_in_csv(file):
                 # writer.writerow(line)
 
                 SRAlist = SRAfile.readline()
-
-@app.route("/update")
-def update():
-    #extract_in_csv("SRAlistTEST.txt")
-    file_sra_req("SRAlistTEST.txt")
-
-@app.route("/update_csv")
-def update_csv():
-    extract_in_csv("SRAlistTEST.txt")
-    return("OK")

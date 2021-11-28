@@ -5,7 +5,10 @@
       <excludeFolder url="file://$MODULE_DIR$/php/upload" />
       <excludeFolder url="file://$MODULE_DIR$/upload/test_dir" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.9 (scientificProject)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PackageRequirementsSettings">
+    <option name="versionSpecifier" value="Don't specify version" />
   </component>
 </module>
