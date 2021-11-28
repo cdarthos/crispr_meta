@@ -22,7 +22,6 @@ def json_sra(Run_accession):
     fetch_sra_fullXML(Run_accession)
     with open("complete_xml/" + Run_accession + ".xml", 'r') as xml:
         o = xmltodict.parse(xml.read())
-        # return o.get("BioSample")
         return o
 
 
@@ -102,15 +101,12 @@ def print_BioProject(path):
 
 def file_sra_req(file):
     with open("SRAlist/" + file, 'r') as SRAfile:
-        max = 400
         i = 0
         SRAlist = SRAfile.readline()
         while SRAlist != "":
-            # print(SRAlist)
             out = fetch_sra_fullXML(SRAlist.strip())
             print(str(i) + "/87122")
             i += 1
-            # print(out)
             SRAlist = SRAfile.readline()
 
 
@@ -171,11 +167,8 @@ def find_sra_element(Run_accession):
             if ([*extra] == ['isolate']):
                 resultat_dict['isolate'] = [*extra.values()][0]
 
-
-
         for n in root.findall(".//RUN_SET/RUN"):
             resultat_dict['datePubli'] = n.get("published")
-
 
         # finalement peu utile
         for n in root.findall(".//XREF_LINK/DB"):
@@ -184,39 +177,23 @@ def find_sra_element(Run_accession):
             resultat_dict['ext_link_id'] = n.text
         for n in root.findall(".//XREF_LINK/LABEL"):
             resultat_dict['ext_link_label'] = n.text
-
     return resultat_dict
 
 
 def extract_in_csv(file):
     with open("SRAlist/" + file, 'r') as SRAfile:
         i = 0
-        # header = ['Run_accession', 'datePubli', 'pubmed_id', 'pubmedLABEL', 'sraID', 'biosampleLABEL', 'country', 'list_extra', 'title', 'abstract']
-
         SRAlist = SRAfile.readline()
-
         with open("SRAlist/test.csv", 'w', newline='', encoding='utf-8') as out:
             resultat_dict = find_sra_element(SRAlist.strip())
             header = resultat_dict.keys()
-            # header = ['Run_accession', 'datePubli', 'pubmed_id', 'pubmedLABEL', 'sraID', 'biosampleLABEL', 'country', 'list_extra', 'title', 'abstract']
-            # print(header)
-
             writer = csv.DictWriter(out, delimiter='\t', fieldnames=header)
             writer.writeheader()
-            # header = "Run_accession\tdatePubli\tpubmed_id\tpubmedLABEL\tsraID\tbiosampleLABEL\tcountry\tlist_extra\ttitle\tabstract"
-            # out.write(header + "\n")
             while SRAlist != "":
                 out = fetch_sra_fullXML(SRAlist.strip())
                 print(SRAlist + " => " + str(i) + "/87122")
                 i += 1
-
                 resultat_dict = find_sra_element(SRAlist.strip())
                 # print(resultat_dict)
                 writer.writerow(resultat_dict)
-
-                # line = [Run_accession, datePubli, pubmed_id, pubmedLABEL, sraID, biosampleLABEL, country, list_extra, title, abstract]
-                # line = [title, abstract]
-
-                # writer.writerow(line)
-
                 SRAlist = SRAfile.readline()
