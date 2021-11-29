@@ -7,6 +7,8 @@ import os.path as p
 import xmltodict
 import sqlite3
 
+from flask import jsonify
+
 app = flask.Flask(__name__)
 
 if __name__ == "__main__":
@@ -60,8 +62,7 @@ def bdd_flask():
                         dict["strain"],
                         dict["title"]])
     bd.show_table()
-    bd.close()
-    return 'OK'
+    return jsonify(bd.show_table())
 
 
 class bdd_sqlite:
@@ -85,7 +86,7 @@ class bdd_sqlite:
             self.cursor.execute(sql)
         except sqlite3.Error as e:
             print(e)
-        print(self.cursor.fetchall())
+        return self.cursor.fetchall()
 
     def insert_table(self,task):
         sql = '''INSERT INTO ncbi (
@@ -104,7 +105,6 @@ class bdd_sqlite:
         '''
         self.cursor.execute(sql,task)
         self.conn.commit()
-        return  self.cursor.lastrowid
 
     def close(self):
         self.conn.close()
