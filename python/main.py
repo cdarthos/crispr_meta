@@ -4,13 +4,14 @@ import flask
 from Bio import Entrez
 import xml.etree.ElementTree as ET
 import os.path as p
-import xmltodict, json
+import xmltodict
+import sqlite3
 
 app = flask.Flask(__name__)
 
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",debug=True)
+    app.run(host="0.0.0.0", debug=True)
+
 
 @app.route("/")
 def hello_world():
@@ -41,6 +42,73 @@ def update_csv():
 def find_sra_element_f(Run_accession):
     out = find_sra_element(Run_accession)
     return out
+
+
+@app.route("/bd")
+def bdd_flask():
+    bd = bdd_sqlite()
+    bd.show_table()
+    dict = find_sra_element("SRR14782356")
+    bd.insert_table([dict["Run_accession"],
+                        dict["BioSample"],
+                        dict["BioProject"],
+                        dict["collection_date"],
+                        dict["geo_loc_name"],
+                        dict["isolate"],
+                        dict["lat_lon"],
+                        dict["sraID"],
+                        dict["strain"],
+                        dict["title"]])
+    bd.show_table()
+    bd.close()
+    return 'OK'
+
+
+class bdd_sqlite:
+    def __init__(self, db_name=':memory:'):
+        self.db_name=db_name
+        self.conn = sqlite3.connect(self.db_name)
+        self.cursor = self.conn.cursor()
+        self.create_db()
+
+
+    def create_db(self, sql = "create_table_ncbi.sql"):
+        with open(sql) as request:
+            sql_request = request.read()
+            self.cursor.executescript(sql_request)
+
+    def show_table(self):
+        sql = '''SELECT *
+                    FROM ncbi
+        '''
+        try:
+            self.cursor.execute(sql)
+        except sqlite3.Error as e:
+            print(e)
+        print(self.cursor.fetchall())
+
+    def insert_table(self,task):
+        sql = '''INSERT INTO ncbi (
+                        Run_accession ,
+                        BioSample ,
+                        BioProject ,
+                        collection_date ,
+                        geo_loc_name ,
+                        isolate ,
+                        lat_lon ,
+                        sraID ,
+                        strain,
+                        title
+                        )
+                    VALUES (?,?,?,?,?,?,?,?,?,?)        
+        '''
+        self.cursor.execute(sql,task)
+        self.conn.commit()
+        return  self.cursor.lastrowid
+
+    def close(self):
+        self.conn.close()
+
 
 
 def fetch_sra_fullXML(id):
@@ -101,12 +169,9 @@ def print_BioProject(path):
 
 def file_sra_req(file):
     with open("SRAlist/" + file, 'r') as SRAfile:
-        i = 0
         SRAlist = SRAfile.readline()
         while SRAlist != "":
-            out = fetch_sra_fullXML(SRAlist.strip())
-            print(str(i) + "/87122")
-            i += 1
+            fetch_sra_fullXML(SRAlist.strip())
             SRAlist = SRAfile.readline()
 
 
@@ -114,7 +179,7 @@ def find_sra_element(Run_accession):
     fetch_sra_fullXML(Run_accession)
     keys_list = ['Run_accession', 'datePubli', 'sraID', 'BioSample', 'collection_date', 'geo_loc_name',
                  'lat_lon', 'list_extra', 'BioProject', 'title', 'abstract', 'ext_link_db', 'ext_link_id',
-                 'ext_link_label','strain','isolate']
+                 'ext_link_label', 'strain', 'isolate']
     resultat_dict = dict.fromkeys(keys_list)
     resultat_dict['Run_accession'] = Run_accession
     with open("complete_xml/" + Run_accession + ".xml", 'r', encoding="utf-8", errors='ignore') as xml:
@@ -182,7 +247,6 @@ def find_sra_element(Run_accession):
 
 def extract_in_csv(file):
     with open("SRAlist/" + file, 'r') as SRAfile:
-        i = 0
         SRAlist = SRAfile.readline()
         with open("SRAlist/test.csv", 'w', newline='', encoding='utf-8') as out:
             resultat_dict = find_sra_element(SRAlist.strip())
@@ -191,9 +255,6 @@ def extract_in_csv(file):
             writer.writeheader()
             while SRAlist != "":
                 out = fetch_sra_fullXML(SRAlist.strip())
-                print(SRAlist + " => " + str(i) + "/87122")
-                i += 1
                 resultat_dict = find_sra_element(SRAlist.strip())
-                # print(resultat_dict)
                 writer.writerow(resultat_dict)
                 SRAlist = SRAfile.readline()
