@@ -52,8 +52,7 @@ def find_sra_element_f(Run_accession):
 def bdd_flask():
     bd = bdd_sqlite()
     bd.import_sra()
-    bd.show_table()
-    return jsonify(bd.show_table())
+    return i
 
 
 class bdd_sqlite:
@@ -85,7 +84,7 @@ class bdd_sqlite:
                      dict["title"]]
                 )
                 SRAlist = SRAfile.readline()
-
+            return i
 
 
     def create_db(self, sql = "create_table_ncbi.sql"):
