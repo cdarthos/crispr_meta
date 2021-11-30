@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS ncbi (
-                Run_accession text NOT NULL UNIQUE,
+                Run_accession text NOT NULL,
                 BioSample text,
                 BioProject text,
                 collection_date date,
