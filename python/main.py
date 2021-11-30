@@ -51,8 +51,8 @@ def find_sra_element_f(Run_accession):
 @app.route("/bd")
 def bdd_flask():
     bd = bdd_sqlite()
-    bd.import_sra()
-    return i
+    out = bd.import_sra()
+    return out
 
 
 class bdd_sqlite:
