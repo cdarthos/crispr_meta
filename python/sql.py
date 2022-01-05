@@ -57,8 +57,8 @@ class bdd_sqlite:
         # Verify that result of SQL query is stored in the dataframe
         #print(df.head())
 
-    def extract_all_3651(self):
-        with open("SRAlist/ebi_2_run_acc_file.csv", 'r', encoding='utf-8') as input:
+    def extract_all_3651(self, file):
+        with open("SRAlist/" + file, 'r', encoding='utf-8') as input:
             acc_key_value = input.readline().replace("\n", "")
 
 
