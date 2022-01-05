@@ -12,8 +12,6 @@ def fetch_sra_fullXML(id):
         Entrez.max_tries = 5
         Entrez.sleep_between_tries = 30
         handle = Entrez.efetch(db="sra", id=id, rettype='full', retmode="xml")
-        # rec1 = Entrez.read(handle)
-        # print(handle)
         record = handle.read().decode('UTF-8').replace('\n', '')
         handle.close()
         with open("complete_xml/" + outname, 'w', encoding="utf-8") as out:
@@ -155,3 +153,28 @@ def extract_in_csv(file):
                 resultat_dict = find_sra_element(SRAlist.strip())
                 writer.writerow(resultat_dict)
                 SRAlist = SRAfile.readline()
+
+
+
+def clean_csv(in_file,out_file,sep_clean=",",sep=";"):
+    with open("SRAlist/" + in_file, 'r') as SRAfile:
+        line = SRAfile.readline()
+        print(line)
+        with open("SRAlist/" + out_file, 'w', newline='', encoding='utf-8') as out:
+            out.write(line)
+
+            writer = csv.writer(out, delimiter=sep)
+
+
+            while SRAfile != "":
+                line = SRAfile.readline()
+
+                dict_raw = line.split(sep)
+                id_raw = dict_raw[0]
+                id = id_raw.split(sep_clean)
+
+                for id_unique in id:
+                    dict_raw[0] = id_unique
+                    writer.writerow(dict_raw)
+
+
